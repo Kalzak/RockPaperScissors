@@ -10,7 +10,7 @@ contract RockPaperScissors {
 	// Stores the encoded choice of the participant (keccak256 plus participants key)
 	bytes32[2] public encodedChoice;
 	// Stores the decoded choice of the participant (in keccak256)
-	string[2] public decodedChoice;
+	uint[2] public decodedChoice;
 	//Encoded attempt
 	bytes32[2] public encodedAttempt;
 	
@@ -86,7 +86,7 @@ contract RockPaperScissors {
 	/**
 	@dev Reveals the choice of the user
 	*/
-	function revealChoice(string memory choice, string memory key) public {
+	function revealChoice(uint choice, string memory key) public {
 		// Check if the reveal is done by any of the users involved
 		bytes32 encoded = keccak256(abi.encodePacked(choice, key));
 		if(participants[0] == msg.sender) {
@@ -111,32 +111,13 @@ contract RockPaperScissors {
 		}
 	}
 
-
 	/**
    	@dev Settles the match and resets all the variables in preparation for the next match
 	*/
 	function settle() public returns(address) {
-		uint user0Choice;
-		uint user1Choice;
+		uint user0Choice = decodedChoice[0];
+		uint user1Choice = decodedChoice[1];
 		address winner;
-		if(keccak256(abi.encodePacked(decodedChoice[0])) == keccak256(abi.encodePacked("rock"))) {
-			user0Choice = 1;
-		}else if(keccak256(abi.encodePacked(decodedChoice[0])) == keccak256(abi.encodePacked("paper"))) {
-			user0Choice = 2;
-		}else if(keccak256(abi.encodePacked(decodedChoice[0])) == keccak256(abi.encodePacked("scissors"))) {
-			user0Choice = 3;
-		}else{
-			user0Choice = 0;
-		}
-		if(keccak256(abi.encodePacked(decodedChoice[1])) == keccak256(abi.encodePacked("rock"))) {
-			user1Choice = 1;
-		}else if(keccak256(abi.encodePacked(decodedChoice[1])) == keccak256(abi.encodePacked("paper"))) {
-			user1Choice = 2;
-		}else if(keccak256(abi.encodePacked(decodedChoice[1])) == keccak256(abi.encodePacked("scissors"))) {
-			user1Choice = 3;
-		}else{
-			user1Choice = 0;
-		}
 		// If draw
 		if(user0Choice == user1Choice) {
 			winner = address(0);
@@ -172,14 +153,17 @@ contract RockPaperScissors {
 				winner = participants[0];
 			}
 		}
-		address[2] storage _participants = participants;
-		_participants[0] = address(0);
-		_participants[1] = address(0);
-		encodedChoice[0] = 0;
-		encodedChoice[0] = 0;
-		decodedChoice[0] = '';
-		decodedChoice[1] = '';
-		stage = 1;
+		reset();
 		return winner;
+	}
+
+	function reset() internal {
+		participants[0] = address(0);	
+		participants[1] = address(0);
+		encodedChoice[0] = 0;
+		encodedChoice[1] = 0;
+		decodedChoice[0] = 0;
+		decodedChoice[1] = 0;
+		stage = 1;
 	}
 }

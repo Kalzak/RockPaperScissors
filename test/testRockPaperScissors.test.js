@@ -1,7 +1,44 @@
 const RockPaperScissors = artifacts.require("RockPaperScissors");
 
 contract("RockPaperScissors", (accounts) => {
-	it("Players can connect to a match", async () => {
+	it("Player can connect to a match", async () => {
+		const instance = await RockPaperScissors.deployed(); 
+		let player1;
+		let players;
+		await instance.join({from: accounts[0]});
+		player1 = accounts[0];
+		players = await instance.getPlayers();
+		assert.equal(player1, players[0], "dApp does not contain expected player1");
+	});
+
+	it("Player can leave match", async () => {
+		const instance = await RockPaperScissors.deployed(); 
+		let player1;
+		let players;
+		players = await instance.getPlayers();
+		player1 = players[0];
+		await instance.leave({from: player1});
+		players = await instance.getPlayers();
+		assert.equal(0, players[0], "dApp does not contain expected player1");
+	});
+
+	it("Player cannot verse themselves", async () => {
+		const instance = await RockPaperScissors.deployed(); 
+		let player1;
+		let player2;
+		let players;
+		await instance.join({from: accounts[0]});
+		let err = null;
+		try {
+			await instance.join({from: accounts[0]});
+		} catch(error) {
+			err = error
+		}		
+		assert.ok(err instanceof Error);
+		await instance.leave({from: accounts[0]});
+	});
+
+	it("Two players can join match", async () => {
 		const instance = await RockPaperScissors.deployed(); 
 		let player1;
 		let player2;
@@ -10,7 +47,7 @@ contract("RockPaperScissors", (accounts) => {
 		player1 = accounts[0];
 		await instance.join({from: accounts[1]});
 		player2 = accounts[1];
-		players = await instance.getParticipants();
+		players = await instance.getPlayers();
 		assert.equal(player1, players[0], "dApp does not contain expected player1");
 		assert.equal(player2, players[1], "dApp does not contain expected player2");
 	});
@@ -28,8 +65,19 @@ contract("RockPaperScissors", (accounts) => {
 
 	it("Match state changes after two players have joined", async () => {
 		const instance = await RockPaperScissors.deployed();
-		let state = await instance.checkStage();	
-		assert.equal(state.toNumber(), 2, "State has not changed after players have joined");
+		let state = await instance.getState();	
+		assert.equal(state.toNumber(), 1, "State has not changed after players have joined");
+	});
+	
+	it("Players cannot leave once a match has started", async () => {
+		const instance = await RockPaperScissors.deployed(); 
+		let err = null;
+		try {
+			await instance.leave({from: accounts[0]});
+		} catch(error) {
+			err = error
+		}		
+		assert.ok(err instanceof Error);
 	});
 
 	it("Players can submit their choices", async () => {
@@ -61,8 +109,8 @@ contract("RockPaperScissors", (accounts) => {
 
 	it("Match state changes after both players have submitted their choices", async () => {
 		const instance = await RockPaperScissors.deployed();
-		let state = await instance.checkStage();
-		assert.equal(state.toNumber(), 3, "State not changed after players have made choices");
+		let state = await instance.getState();
+		assert.equal(state.toNumber(), 2, "State not changed after players have made choices");
 	});
 
 	it("Players can reveal their choices", async () => {
@@ -90,21 +138,21 @@ contract("RockPaperScissors", (accounts) => {
 
 	it("Match state changes after both players have submitted their choices", async () => {
 		const instance = await RockPaperScissors.deployed();
-		let state = await instance.checkStage();
-		assert.equal(state.toNumber(), 4, "State not changed after choices revealed");
+		let state = await instance.getState();
+		assert.equal(state.toNumber(), 3, "State not changed after choices revealed");
 	});
 
 	it("Settling the match clears the match data", async () => {
 		const instance = await(RockPaperScissors.deployed());
 		await instance.settle();
-		let player1 = await instance.participants(0);
-		let player2 = await instance.participants(1);
+		let player1 = await instance.players(0);
+		let player2 = await instance.players(1);
 		let p1EncodedChoice = await instance.encodedChoice(0);
 		let p2EncodedChoice = await instance.encodedChoice(1);
 		let p1DecodedChoice = await instance.decodedChoice(0);
 		let p2DecodedChoice = await instance.decodedChoice(1);
-		let state = await instance.checkStage();
-		assert.equal(state.toNumber(), 1, "Match state has not been reset");
+		let state = await instance.getState();
+		assert.equal(state.toNumber(), 0, "Match state has not been reset");
 		assert.equal(player1, 0, "player1 has not been reset");
 		assert.equal(player2, 0, "player2 has not been reset");
 		assert.equal(p1EncodedChoice, 0, "player1's encoded choice has not been reset");

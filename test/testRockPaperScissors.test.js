@@ -43,9 +43,9 @@ contract("RockPaperScissors", (accounts) => {
 		let player1;
 		let player2;
 		let players;
-		await instance.join({from: accounts[0]});
+		await instance.join({from: accounts[0], value: 10000000000000000000});
 		player1 = accounts[0];
-		await instance.join({from: accounts[1]});
+		await instance.join({from: accounts[1], value: 10000000000000000000});
 		player2 = accounts[1];
 		players = await instance.getPlayers();
 		assert.equal(player1, players[0], "dApp does not contain expected player1");
@@ -143,7 +143,7 @@ contract("RockPaperScissors", (accounts) => {
 	});
 
 	it("Settling the match clears the match data", async () => {
-		const instance = await(RockPaperScissors.deployed());
+		const instance = await RockPaperScissors.deployed();
 		await instance.settle();
 		let player1 = await instance.players(0);
 		let player2 = await instance.players(1);

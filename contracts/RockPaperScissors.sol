@@ -7,7 +7,7 @@ pragma solidity ^0.5.0;
 */
 contract RockPaperScissors {
 	// Stores the players in current match
-	address[2] public players;
+	address payable[2] public players;
 
 	// Stores encoded player choices
 	bytes32[2] public encodedChoice;
@@ -23,11 +23,23 @@ contract RockPaperScissors {
 	enum MatchState{Join, Choose, Reveal, Settle}
 	MatchState state;
 
+	// Event for declaring a winner
+	event Winner(address winner, uint winAmount);
+	
+	// Event for declaring a draw
+	event Draw();
+
 	// Constructor sets all match variables to default state
 	constructor() public{
 		reset();
 	}
-	
+
+	// Boolean to indicate whether this match is wagered with ETH
+	bool public betMatch;
+
+	// If match includes bet each player must bet betSize of eth
+	uint public betSize = 10000000000000000000;
+
 	// Only allows players to access functions
 	modifier onlyPlayers() {
 		bool isPlayer = (msg.sender == players[0] || msg.sender == players[1]);
@@ -47,23 +59,25 @@ contract RockPaperScissors {
 	@notice Returns the current players in the match
        	@return Address array of size two containing players
 	*/
-	function getPlayers() public view returns(address[2] memory) {
+	function getPlayers() public view returns(address payable[2] memory) {
 		return players;
 	}
 
 	/**
 	@notice Adds the message sender to the match
 	*/
-	function join() public {
+	function join() public payable {
 		// Check if correct match state
 		require(state == MatchState.Join, "Match does not need players to join currently");
 		// If no players have joined match yet	
 		if(players[0] == address(0)) {
+			checkBetAmount();
 			players[0] = msg.sender;
 		// If one players is already in match
 		} else {
 			// Players can't verse themselves
 			require(players[0] != msg.sender, "You played yourself. Wait, you can't.");
+			checkBetAmount();
 			players[1] = msg.sender;
 			// Update the match state
 			state = MatchState.Choose;
@@ -78,6 +92,17 @@ contract RockPaperScissors {
 		require(state == MatchState.Join, "Match does not need players to join currently");
 		// Remove the player from the match
 		players[0] = address(0);
+	}
+
+	/**
+	@notice Checks if the amount the player is betting is valid
+	*/
+	function checkBetAmount() internal {
+		if(msg.value > 0 ether) {
+			// The ether must be half of betSize otherwise cancel transaction
+			require(msg.value == betSize, "betSize eth required to bet");
+			betMatch = true;					
+		}
 	}
 
 	/**
@@ -100,7 +125,6 @@ contract RockPaperScissors {
 		}
 	}
 	
-	// Reveals a players choice
 	/**
 	@notice Reveals a players choice
        	@param choice is the users choice, key is the key the users passed from their encoded choice
@@ -157,19 +181,29 @@ contract RockPaperScissors {
 		decodedChoice[0] = 0;
 		decodedChoice[1] = 0;
 		state = MatchState.Join;
+		betMatch = false;
 	}
 
 	/**
 	@notice Declares the winner
 	*/
-	function win(address winner) internal returns(bool){
-		return true;
+	function win(address payable winner) internal {	
+		if(betMatch) {	
+			//winner.transfer(betSize * 2);
+			(bool success, ) = winner.call.value(betSize * 2)("");
+        		require(success, "Transfer failed.");
+		}
+		emit Winner(winner, betSize * 2);
 	}
 
 	/**
 	@notice Declares a draw
 	*/
-	function draw() internal returns(bool) {
-		return true;
+	function draw() internal {
+		if(betMatch) {
+			players[0].transfer(betSize);
+			players[1].transfer(betSize);
+		}
+		emit Draw();
 	}	
 }

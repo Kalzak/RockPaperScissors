@@ -1,4 +1,4 @@
-#Rock Paper Scissors DApp
+# Rock Paper Scissors DApp
 A simple rock paper scissors game for the Ethereum network.  I made this to get a feel of Solidity, Web3js and how they interact with each other.
 Since this game is running on the blockchain, a couple of comfort features have been added for players.
 - Match state indicating the progress of the match

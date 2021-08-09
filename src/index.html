@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang=en>
+	<head>
+		<meta charset="utf-8">
+		<title>RockPaperScissors</title>
+	</head>
+	<body>
+		<h1>Welcome to Rock Paper Scissors</h1>
+		<p id="currentAccount"></p>
+		<hr>
+		<button id="enableEthereum">Enable Ethereum</button>
+		<p id="matchState"></p>
+		<p id="player1"></p>
+		<p id="player2"></p>
+		<button id="checkNewPlayers">Check for new players</button>
+		<button id="joinMatch">Join match</button>
+		<button id="leaveMatch">Leave match</button><br><br>
+		<hr>
+		<form id="choice">
+			<input type="radio" name="choice"/>
+			<label for="rock">Rock</label><br>
+			<input type="radio" name="choice"/>
+			<label for="paper">Paper</label><br>
+			<input type="radio" name="choice"/>
+			<label for="scissors">Scissors</label><br>
+		</form>
+		<input id="submitChoiceKey" type="text" placeholder="key"/>
+		<button id="submitChoice">Submit choice</button>
+		<p id="submitChoiceStatus"></p>
+		<hr>
+		<form id="revealChoiceItem">
+			<input type="radio" name="revealChoiceItem"/>
+			<label for="rock">Rock</label><br>
+			<input type="radio" name="revealChoiceItem"/>
+			<label for="paper">Paper</label><br>
+			<input type="radio" name="revealChoiceItem"/>
+			<label for="scissors">Scissors</label><br>
+		</form>
+		<input id="revealChoiceKey" type="text" placeholder="key"/>
+		<button id="revealChoice">Reveal choice</button>
+		<p id="p1RevealedChoice"></p>
+		<p id="p2RevealedChoice"></p>	
+		<button id="refreshRevealedChoices">Refresh revealed choices</button>
+		<hr>
+		<button id="settle">Settle match</button>
+		<p id="matchSummary"></p>
+		<script src="JSHelpers/web3.min.js"></script>
+		<script src="JSHelpers/RockPaperScissors.js"></script>
+		<script src="JSHelpers/jquery-3.6.0.min.js"></script>
+		<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+		<script src="app.js"></script>
+	</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "rockPaperScissorsWebDev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kalzak/RockPaperScissors.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kalzak/RockPaperScissors/issues"
+  },
+  "homepage": "https://github.com/Kalzak/RockPaperScissors#readme",
+  "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
+    "web3": "^1.5.1"
+  }
+}

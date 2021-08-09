@@ -188,12 +188,13 @@ contract RockPaperScissors {
 	@notice Declares the winner
 	*/
 	function win(address payable winner) internal {	
+		uint winningsAmount = 0;
 		if(betMatch) {	
-			//winner.transfer(betSize * 2);
 			(bool success, ) = winner.call.value(betSize * 2)("");
         		require(success, "Transfer failed.");
+			winningsAmount = betSize * 2;
 		}
-		emit Winner(winner, betSize * 2);
+		emit Winner(winner, winningsAmount);
 	}
 
 	/**

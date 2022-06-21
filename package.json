@@ -26,6 +26,8 @@
   "homepage": "https://github.com/Kalzak/RockPaperScissors#readme",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
+    "ganache": "^7.3.1",
+    "truffle": "^5.5.18",
     "web3": "^1.5.1"
   }
 }

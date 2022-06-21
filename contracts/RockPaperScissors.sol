@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
 /**
-@title Rock Paper Scissors smart contract
-@author @kalzakdev
-@notice You can use this contract to play rock paper scissors
-*/
+ * @title Rock Paper Scissors smart contract
+ * @author @kalzakdev
+ * @notice You can use this contract to play rock paper scissors
+ */
 contract RockPaperScissors {
 	// Stores the players in current match
 	address payable[2] public players;
@@ -19,13 +19,13 @@ contract RockPaperScissors {
 	// 3 = Scissors
 	uint[2] public decodedChoice;
 
-	// Enum to store the state of the match	
+	// Enum to store the state of the match
 	enum MatchState{Join, Choose, Reveal, Settle}
 	MatchState state;
 
 	// Event for declaring a winner
 	event Winner(address winner, uint winAmount);
-	
+
 	// Event for declaring a draw
 	event Draw();
 
@@ -48,28 +48,28 @@ contract RockPaperScissors {
 	}
 
 	/**
-	@notice Returns the state of the current match
-       	@return Match state where 0 = Join, 1 = Choose, 2 = Reveal, 3 = Settle
-	*/
+	 * @notice Returns the state of the current match
+	 * @return Match state where 0 = Join, 1 = Choose, 2 = Reveal, 3 = Settle
+	 */
 	function getState() public view returns(uint) {
 		return uint(state);
 	}
 
 	/**
-	@notice Returns the current players in the match
-       	@return Address array of size two containing players
-	*/
+	 * @notice Returns the current players in the match
+	 * @return Address array of size two containing players
+	 */
 	function getPlayers() public view returns(address payable[2] memory) {
 		return players;
 	}
 
 	/**
-	@notice Adds the message sender to the match
-	*/
+	 * @notice Adds the message sender to the match
+	 */
 	function join() public payable {
 		// Check if correct match state
 		require(state == MatchState.Join, "Match does not need players to join currently");
-		// If no players have joined match yet	
+		// If no players have joined match yet
 		if(players[0] == address(0)) {
 			checkBetAmount();
 			players[0] = msg.sender;
@@ -85,8 +85,8 @@ contract RockPaperScissors {
 	}
 
 	/**
-	@notice Removes message sender from match if no opponent has joined
-	*/
+	 * @notice Removes message sender from match if no opponent has joined
+	 */
 	function leave() public onlyPlayers {
 		// Check if correct match state
 		require(state == MatchState.Join, "Match does not need players to join currently");
@@ -95,20 +95,20 @@ contract RockPaperScissors {
 	}
 
 	/**
-	@notice Checks if the amount the player is betting is valid
-	*/
+	 * @notice Checks if the amount the player is betting is valid
+	 */
 	function checkBetAmount() internal {
 		if(msg.value > 0 ether) {
 			// The ether must be half of betSize otherwise cancel transaction
 			require(msg.value == betSize, "betSize eth required to bet");
-			betMatch = true;					
+			betMatch = true;
 		}
 	}
 
 	/**
-	@notice Accepts and saves the players encoded choices
-       	@param choice is keccak256 encoded user choice in the format of (choice, key)
-	*/
+	 * @notice Accepts and saves the players encoded choices
+	 * @param choice is keccak256 encoded user choice in the format of (choice, key)
+	 */
 	function submitChoice(bytes32 choice) public onlyPlayers {
 		// Check if correct match state
 		require(state == MatchState.Choose, "Match does not need players to choose currently");
@@ -124,11 +124,11 @@ contract RockPaperScissors {
 			state = MatchState.Reveal;
 		}
 	}
-	
+
 	/**
-	@notice Reveals a players choice
-       	@param choice is the users choice, key is the key the users passed from their encoded choice
-	*/
+	 * @notice Reveals a players choice
+	 * @param choice is the users choice, key is the key the users passed from their encoded choice
+	 */
 	function revealChoice(uint choice, string memory key) public onlyPlayers {
 		// Check if correct match state
 		require(state == MatchState.Reveal, "Match does not need players to reveal currently");
@@ -150,11 +150,11 @@ contract RockPaperScissors {
 			state = MatchState.Settle;
 		}
 	}
-	
+
 	/**
-	@notice Decides a winner and resets the match state
-	*/	  
-       	function settle() public onlyPlayers returns(address) {
+	 * @notice Decides a winner and resets the match state
+	 */	  
+		function settle() public onlyPlayers returns(address) {
 		require(state == MatchState.Settle, "Match does not need players to settle currently");
 		uint p1Choice = decodedChoice[0];
 		uint p2Choice = decodedChoice[1];
@@ -171,10 +171,10 @@ contract RockPaperScissors {
 	}
 
 	/**
-	@notice Resets all match varaibles for the next match
-	*/
+	 * @notice Resets all match varaibles for the next match
+	 */
 	function reset() internal {
-		players[0] = address(0);	
+		players[0] = address(0);
 		players[1] = address(0);
 		encodedChoice[0] = 0;
 		encodedChoice[1] = 0;
@@ -185,26 +185,27 @@ contract RockPaperScissors {
 	}
 
 	/**
-	@notice Declares the winner
-	*/
-	function win(address payable winner) internal {	
+	 * @notice Declares the winner
+	 */
+	function win(address payable winner) internal {
 		uint winningsAmount = 0;
-		if(betMatch) {	
-			(bool success, ) = winner.call.value(betSize * 2)("");
-        		require(success, "Transfer failed.");
+		uint contractBalance = address(this).balance;
+		if(betMatch) {
+			(bool success, ) = winner.call.value(contractBalance)("");
+				require(success, "Transfer failed.");
 			winningsAmount = betSize * 2;
 		}
 		emit Winner(winner, winningsAmount);
 	}
 
 	/**
-	@notice Declares a draw
-	*/
+	 * @notice Declares a draw
+	 */
 	function draw() internal {
 		if(betMatch) {
 			players[0].transfer(betSize);
 			players[1].transfer(betSize);
 		}
 		emit Draw();
-	}	
+	}
 }

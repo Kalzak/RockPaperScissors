@@ -99,7 +99,6 @@ contract RockPaperScissors {
 	 */
 	function checkBetAmount() internal {
 		if(msg.value > 0 ether) {
-			// The ether must be half of betSize otherwise cancel transaction
 			require(msg.value == betSize, "betSize eth required to bet");
 			betMatch = true;
 		}
